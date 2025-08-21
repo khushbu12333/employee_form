@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Exellar Employee Form</title>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right bottom, #ffffff 0%, #90caf9 100%);
+      min-height: 100vh;
+      background-size: cover;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    /* Welcome Screen */
+    #welcomeScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e3f2fd 0%, #fff 100%);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      padding: 20px;
+    }
+
+    #welcomeScreen.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .welcome-logo {
+      width: min(180px, 70vw);
+      height: auto;
+      margin-bottom: 24px;
+    }
+
+    .welcome-title {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
+      color: #1a237e;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .welcome-subtitle {
+      color: #333;
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      margin-bottom: 32px;
+      max-width: 90%;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .start-btn {
+      padding: clamp(12px, 3vw, 14px) clamp(30px, 8vw, 36px);
+      background: linear-gradient(135deg, #1976d2, #64b5f6);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(33, 150, 243, 0.3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 44px;
+      touch-action: manipulation;
+    }
+
+    .start-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 75%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: skewX(-20deg);
+      transition: left 0.5s;
+    }
+
+    .start-btn:hover::before,
+    .start-btn:active::before {
+      left: 125%;
+    }
+
+    .start-btn:hover,
+    .start-btn:active {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 32px rgba(33, 150, 243, 0.4);
+    }
+
+    /* Form Container */
+    .container {
+      display: none;
+      justify-content: flex-start; /* Changed from center */
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 10px;
+      padding-top: 20px;
+      min-height: -webkit-fill-available;
+    }
+
+    .container.show {
+      display: flex;
+    }
+
+    /* Card Layout */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: clamp(15px, 4vw, 20px);
+      width: 100%;
+      max-width: 100%;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      color: #000;
+      overflow-y: auto;
+      min-height: 100vh;
+      display: flex;
+      /* border: none; */
+      margin: 0;
+      max-width: 70%; /* Adjust the maximum width to 90% */
+      margin: 0 auto; /* Center the card horizontally */
+      flex-direction: column;
+    }
+
+    /* Form content wrapper */
+    .form-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 80px; /* Space for fixed buttons */
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+      font-size: clamp(1.3rem, 4vw, 1.8rem);
+      line-height: 1.2;
+    }
+
+    /* Form Styling */
+    .form-group {
+      position: relative;
+      margin-bottom: clamp(15px, 4vw, 20px);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: clamp(12px, 3vw, 14px);
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      background-color: #fff;
+      transition: all 0.3s ease;
+      font-size: clamp(14px, 4vw, 16px);
+      min-height: 44px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .form-group label {
+      position: absolute;
+      top: clamp(12px, 3vw, 14px);
+      left: clamp(12px, 3vw, 14px);
+      background-color: white;
+      padding: 0 6px;
+      font-size: clamp(13px, 3.5vw, 15px);
+      color: #777;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      font-weight: 500;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .form-group input:focus + label,
+    .form-group input:not(:placeholder-shown) + label,
+    .form-group select:focus + label,
+    .form-group select:not([value=""]) + label {
+      top: -10px;
+      left: 12px;
+      font-size: clamp(11px, 3vw, 13px);
+      color: #007bff;
+      font-weight: 600;
+    }
+
+    .form-group input[type="file"] {
+      padding: clamp(10px, 2.5vw, 12px);
+      border: 2px dashed #ccc;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .form-group input[type="file"] + label {
+      position: static;
+      background: none;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+      display: block;
+      font-size: clamp(13px, 3.5vw, 15px);
+    }
+
+    .form-group input[type="file"]:focus {
+      border-color: #007bff;
+      background: #f0f8ff;
+    }
+
+    /* Steps */
+    .step {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    .step h3 {
+      font-size: clamp(1.1rem, 4vw, 1.3rem);
+      margin-bottom: clamp(15px, 4vw, 20px);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Buttons */
+    button,
+    input[type="submit"] {
+      padding: clamp(12px, 3vw, 14px) clamp(20px, 5vw, 24px);
+      margin: 10px 8px 0 0;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      font-size: clamp(14px, 3.5vw, 16px);
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0, 123, 255, 0.4);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 44px;
+      touch-action: manipulation;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    button::before,
+    input[type="submit"]::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 75%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: skewX(-20deg);
+      transition: left 0.5s;
+    }
+
+    button:not(:disabled):hover::before,
+    button:not(:disabled):active::before,
+    input[type="submit"]:hover::before,
+    input[type="submit"]:active::before {
+      left: 125%;
+    }
+
+    button:not(:disabled):hover,
+    button:not(:disabled):active,
+    input[type="submit"]:hover,
+    input[type="submit"]:active {
+      background: linear-gradient(135deg, #0056b3, #004494);
+      box-shadow: 0 6px 20px rgba(0, 86, 179, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #6c757d, #5a6268);
+    }
+
+    .btn-secondary:hover,
+    .btn-secondary:active {
+      background: linear-gradient(135deg, #5a6268, #495057);
+    }
+
+    /* Progress Indicator */
+    .progress-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: clamp(20px, 5vw, 30px);
+      gap: clamp(10px, 3vw, 20px);
+    }
+
+    .progress-step {
+      width: clamp(35px, 8vw, 40px);
+      height: clamp(35px, 8vw, 40px);
+      border-radius: 50%;
+      background: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      font-size: clamp(12px, 3vw, 14px);
+      border: 2px solid transparent;
+    }
+
+    .progress-step.active {
+      background: #007bff;
+      color: white;
+      border-color: #0056b3;
+    }
+
+    .progress-step.completed {
+      background: #28a745;
+      color: white;
+      border-color: #1e7e34;
+    }
+
+    /* Messages */
+    #output,
+    #error {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+      padding: clamp(10px, 3vw, 15px);
+      border-radius: 8px;
+      font-size: clamp(13px, 3.5vw, 15px);
+    }
+
+    #output {
+      color: #28a745;
+      background: rgba(40, 167, 69, 0.1);
+      border: 2px solid rgba(40, 167, 69, 0.2);
+    }
+
+    #error {
+      color: #dc3545;
+      background: rgba(220, 53, 69, 0.1);
+      border: 2px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .form-group input:invalid {
+      border-color: #ff1744;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+      padding: 20px;
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      padding: clamp(24px, 6vw, 32px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 90vw;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .modal h3 {
+      margin-top: 0;
+      color: #333;
+      font-size: clamp(1.1rem, 4vw, 1.3rem);
+    }
+
+    .modal-body {
+      margin-bottom: 18px;
+      color: #666;
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+      line-height: 1.4;
+    }
+
+    /* Success Page */
+    #successPage {
+      display: none;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to right bottom, #ffffff 0%, #90caf9 100%);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 99999;
+      animation: fadeIn 0.5s ease;
+      padding: 20px;
+    }
+
+    .success-content {
+      background: white;
+      border-radius: 16px;
+      padding: clamp(32px, 8vw, 40px) clamp(24px, 6vw, 32px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .success-icon {
+      width: clamp(60px, 15vw, 80px);
+      height: clamp(60px, 15vw, 80px);
+      background: #28a745;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: bounce 0.6s ease;
+    }
+
+    .success-icon::before {
+      content: "✓";
+      font-size: clamp(25px, 8vw, 40px);
+      color: white;
+      font-weight: bold;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .success-title {
+      color: #28a745;
+      margin-bottom: 16px;
+      font-size: clamp(1.3rem, 5vw, 1.8rem);
+    }
+
+    .success-message {
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+      color: #333;
+      line-height: 1.5;
+    }
+
+    /* Agreement Section */
+    .agreement-section {
+      background: #fff;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: clamp(20px, 5vw, 25px);
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .agreement-section:hover {
+      border-color: #667eea;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(12px, 3vw, 15px);
+      margin-bottom: 20px;
+    }
+
+    .custom-checkbox {
+      position: relative;
+      display: inline-block;
+      width: clamp(22px, 5vw, 24px);
+      height: clamp(22px, 5vw, 24px);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .custom-checkbox input[type="checkbox"] {
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: clamp(22px, 5vw, 24px);
+      width: clamp(22px, 5vw, 24px);
+      background: #fff;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .custom-checkbox:hover .checkmark {
+      border-color: #667eea;
+    }
+
+    .custom-checkbox input:checked ~ .checkmark {
+      background: #667eea;
+      border-color: #667eea;
+    }
+
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+      left: clamp(6px, 1.5vw, 7px);
+      top: clamp(2px, 0.5vw, 3px);
+      width: clamp(5px, 1.2vw, 6px);
+      height: clamp(10px, 2.5vw, 12px);
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .custom-checkbox input:checked ~ .checkmark:after {
+      display: block;
+    }
+
+    .checkbox-label {
+      color: #333;
+      cursor: pointer;
+      user-select: none;
+      font-size: clamp(13px, 3.5vw, 16px);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .checkbox-label a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .checkbox-label a:hover {
+      text-decoration: underline;
+    }
+
+    /* HR Policy Section */
+    .policy-section {
+      background: rgba(0, 123, 255, 0.1);
+      padding: clamp(15px, 4vw, 20px);
+      border-radius: 10px;
+      margin: clamp(15px, 4vw, 20px) 0;
+      border: 2px solid rgba(0, 123, 255, 0.2);
+    }
+
+    .policy-section h4 {
+      color: #007bff;
+      margin-top: 0;
+      font-size: clamp(1rem, 3.5vw, 1.2rem);
+      margin-bottom: 10px;
+    }
+
+    .policy-section p {
+      font-size: clamp(13px, 3.5vw, 15px);
+      line-height: 1.4;
+      margin-bottom: 15px;
+    }
+
+    /* Button Containers */
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .button-container button {
+      flex: 1;
+      min-width: 120px;
+    }
+    /* Responsive Design Adjustments */
+    @media (max-width: 800px) {
+      .card {
+        margin: 10px;
+        padding: 15px;
+        max-width: 100%; /* Allow card to take full width on smaller screens */
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group input,
+      .form-group select {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .form-group label {
+        font-size: 14px;
+        top: 10px;
+        left: 10px;
+      }
+
+      .form-group input:focus + label,
+      .form-group input:not(:placeholder-shown) + label,
+      .form-group select:focus + label,
+      .form-group select:not([value=""]) + label {
+        font-size: 12px;
+        top: -6px;
+        left: 8px;
+      }
+
+      button,
+      input[type="submit"] {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      .progress-step {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+        margin: 0 5px;
+      }
+
+    /* Very small screens */
+    @media screen and (max-width: 800px) {
+      .welcome-title {
+        font-size: 2rem;
+      }
+      
+      .card {
+        padding: 12px;
+        margin: 10px;
+        padding: 15px;
+        max-width: 100%;
+      }
+      
+      .form-group input,
+      .form-group select {
+        padding: 12px;
+        font-size: 16px;
+      }
+      .welcome-subtitle {
+        font-size: 1rem;
+      }
+
+      .start-btn {
+        padding: 10px 25px;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Landscape mobile orientation */
+    @media screen and (max-height: 800px) and (orientation: landscape) {
+      #welcomeScreen {
+        padding: 10px;
+      }
+      
+      .welcome-title {
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+      }
+      
+      .welcome-subtitle {
+        margin-bottom: 15px;
+      }
+      
+      .welcome-logo {
+        width: 120px;
+        margin-bottom: 10px;
+      }
+    }
+
+/* Mobile specific adjustments */
+@media screen and (max-width: 900px) {
+    .container {
+        height: 100vh;
+        height: -webkit-fill-available;
+    }
+
+    .card {
+        border-radius: 0;
+        padding: 15px 15px 80px 15px;
+    }
+
+    .button-container {
+        padding: 10px 15px;
+        background: white;
+    }
+
+    .button-container button {
+        margin: 0;
+        padding: 12px 15px;
+    }
+}
+
+/* iPhone specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .container, .card {
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* Very tall screens */
+@media screen and (min-height: 800px) {
+    .card {
+        padding-bottom: 100px;
+    }
+
+html, body {
+    min-height: -webkit-fill-available;
+}
+
+/* Small screens in landscape */
+@media screen and (max-height: 800px) and (orientation: landscape) {
+    .card {
+        padding-bottom: 60px;
+    }
+    
+    .button-container {
+        padding: 8px 15px;
+    }
+    
+    .button-container button {
+        padding: 8px 15px;
+        min-height: 40px;
+    }
+}
+/* Optional field label styling */
+.form-group label[for^="optional"]::after,
+.form-group label:contains("(Optional)") {
+    color: #666;
+    font-size: 0.9em;
+    font-weight: normal;
+}
+
+  </style>
+</head>
+<body>
+  <!-- Welcome Screen -->
+  <div id="welcomeScreen">
+    <img src="https://static.wixstatic.com/media/45b279_cb61d18cdea44493bc7f40c22052c651~mv2.jpg/v1/fill/w_176,h_151,al_c,q_80,usm_2.00_1.00_0.00,enc_avif,quality_auto/Exellar%20Logo_TAGLINE_CTC1024_1.jpg" alt="Exellar Construction Logo" class="welcome-logo" />
+    <h1 class="welcome-title">
+      Welcome to <br>Exellar Construction LLP
+    </h1>
+    <p class="welcome-subtitle">
+      We're excited to have you join our team! <br>
+      Click below to start your journey with us.
+    </p>
+    <button class="start-btn" onclick="hideWelcome()">
+      Start Employee Form
+    </button>
+  </div>
+
+  <!-- Form Container -->
+  <div class="container" id="formContainer">
+    <div class="card">
+      <h2>Exellar Employee Form</h2>
+      
+      <!-- Progress Indicator -->
+      <div class="progress-container">
+        <div class="progress-step active" id="progress1">1</div>
+        <div class="progress-step" id="progress2">2</div>
+      </div>
+
+      <form id="dataForm">
+        <!-- Step 1: Personal Information -->
+        <div class="step active" id="step1">
+          <h3 style="color: #007bff; margin-bottom: 20px;">Personal Information</h3>
+          
+          <div class="form-group">
+            <input type="text" name="fullName" required placeholder=" " />
+            <label>Full Name As Per Aadhar Card</label>
+          </div>
+          
+          <div class="form-group">
+            <input type="text" name="fatherFullName" required placeholder=" " />
+            <label>Father Full Name</label>
+          </div>
+          
+          <div class="form-group">
+            <input type="date" name="dob" required placeholder=" " />
+            <label>Date of Birth</label>
+          </div>
+          
+          <div class="form-group">
+            <input type="text" name="address" required placeholder=" " />
+            <label>Full Current Address</label>
+          </div>
+          
+          <div class="form-group">
+            <input type="tel" name="mobileNumber" required placeholder=" " />
+            <label>Mobile Number</label>
+          </div>
+
+          <div class="form-group">
+            <input type="email" name="email" required placeholder=" " />
+            <label>Email ID</label>
+          </div>
+          
+           <div class="form-group">
+            <input type="tel" name="emergencyContact" required placeholder=" " />
+            <label>Emergency Contact Number</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" name="aadharCardNumber" required placeholder=" " />
+            <label>Aadhar Card No.</label>
+          </div>
+          
+          <!-- <div class="form-group">
+            <label>Upload Aadhar Card</label>
+            <input type="file" name="aadharCardFile" accept="image/*,.pdf" required />
+          </div> -->
+          
+          <div class="form-group">
+            <input type="text" name="panCardNumber" required placeholder=" " />
+            <label>PAN Card No.</label>
+          </div>
+          
+          <!-- <div class="form-group">
+            <label>Upload PAN Card</label>
+            <input type="file" name="panCardFile" accept="image/*,.pdf" required />
+          </div>
+           -->
+          <!-- <div class="form-group">
+            <label>Passport Size Photo</label>
+            <input type="file" name="photoFile" accept="image/*" required />
+          </div> -->
+          
+          <!-- <div class="form-group">
+            <input type="text" name="bloodGroup" placeholder=" " />
+            <label>Blood Group</label>
+          </div> -->
+          
+          <div class="form-group">
+            <input type="date" name="joiningDate" placeholder=" " />
+            <label>Exellar Joining Date</label>
+          </div>
+          
+          <div class="button-container">
+            <button type="button" onclick="nextStep()">Next</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Professional Information -->
+        <div class="step" id="step2">
+          <h3 style="color: #007bff; margin-bottom: 20px;">Professional Information</h3>
+          
+           <!-- <div class="form-group">
+            <input type="number" name="experience" min="0" step="0.1" placeholder=" " />
+            <label>Years of Experience</label>
+          </div> -->
+
+          <!-- <div class="form-group">
+            <input type="text" name="qualification" required placeholder=" " />
+            <label>Qualification (10th/12th/DCE/BCE)</label>
+          </div>
+          
+          <div class="form-group">
+            <label>Upload Latest Degree Certificate</label>
+            <input type="file" name="degreeFile" accept="image/*,.pdf" required />
+          </div> -->
+<!-- 
+           <div class="form-group">
+            <label>Upload Current Resume</label>
+            <input type="file" name="resume" accept=".pdf,.doc,.docx" required />
+          </div> -->
+<!-- 
+          <div class="form-group">
+            <label>Upload Experience Certificate(Optional)</label>
+            <input type="file" name="experienceCertificate" accept="image/*,.pdf" />
+          </div>
+          
+          <div class="form-group">
+            <label>Upload Salary Slip(Optional)</label>
+            <input type="file" name="salarySlip" accept="image/*,.pdf" />
+          </div>
+           -->
+          <div class="form-group">
+            <input type="text" name="accountName" required placeholder=" " />
+            <label>Name as per Bank Account</label>
+          </div>
+          
+          <div class="form-group">
+            <input type="text" name="bankName" required placeholder=" " />
+            <label>Bank Name</label>
+          </div>
+          
+          <div class="form-group">
+            <input type="text" name="ifscCode" required placeholder=" " />
+            <label>IFSC Code</label>
+          </div>
+          
+          <div class="form-group">
+            <input type="text" name="accountNumber" required placeholder=" " />
+            <label>Account Number</label>
+          </div>
+          
+          <div class="form-group">
+            <label>Upload Clear Bank Passbook/Cheque Photo</label>
+            <input type="file" name="bankProofFile" accept="image/*,.pdf" required />
+          </div>
+          
+          <div class="form-group">
+          <input type="number" name="salary" min="0" step="0.01" required placeholder=" " />
+          <label>Current Salary</label>
+        </div>
+
+        <div class="form-group">
+        <select name="designation" required>
+        <option value="" disabled selected>Select Designation</option>
+        <option value="Accountant">Accountant</option>
+        <option value="Billing Engineer">Billing Engineer</option>
+        <option value="Billing Manager">Billing Manager</option>
+        <option value="Campboss">Campboss</option>
+        <option value="Driver">Driver</option>
+        <option value="Electrician">Electrician</option>
+        <option value="Jr. Engineer">Jr. Engineer</option>
+        <option value="Lift Operator">Lift Operator</option>
+        <option value="Project Manager">Project Manager</option>
+        <option value="QA/QC Engineer">QA/QC Engineer</option>
+        <option value="QA/QC Head">QA/QC Head</option>
+        <option value="QC Supervisor">QC Supervisor</option>
+        <option value="Safety Officer">Safety Officer</option>
+        <option value="Safety Supervisor">Safety Supervisor</option>
+        <option value="Signalman">Signalman</option>
+        <option value="Site Engineer">Site Engineer</option>
+        <option value="Site Incharge">Site Incharge</option>
+        <option value="Sr. Engineer">Sr. Engineer</option>
+        <option value="Sr. Supervisor">Sr. Supervisor</option>
+        <option value="Store Keeper">Store Keeper</option>
+        <option value="Supervisor">Supervisor</option>
+        <option value="Surveyor">Surveyor</option>
+        <option value="TC Operator">TC Operator</option>
+        <option value="Welder">Welder</option>
+        <option value="Other">Other</option>
+        <label>Designation</label>
+        </select></div>
+
+
+        <div class="form-group">
+            <input type="text" name="siteName" required placeholder=" " />
+            <label>Site Name</label>
+        </div> 
+
+
+        <div style="background: rgba(0, 123, 255, 0.1); padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h4 style="color: #007bff; margin-top: 0;">HR Policy Document</h4>
+          <p>Please download and read the HR Policy Document before submitting the form.</p>
+          <button type="button" id="downloadPolicyBtn" onclick="openPDF()">Read & Download HR Policy</button>
+        </div>
+            <form id="agreementForm">
+      <div class="agreement-section">
+          <div class="checkbox-wrapper">
+              <label class="custom-checkbox">
+                  <input type="checkbox" id="termsCheckbox" required>
+                  <span class="checkmark"></span>
+              </label>
+              <label for="termsCheckbox" class="checkbox-label">
+                  I have read and agree to the <a href="#" onclick="showTerms()">Terms and Conditions</a> and <a href="#" onclick="showPrivacy()">Privacy Policy</a>
+              </label>
+          
+                
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+        </form>
+    </div>
+          
+          <button type="button" class="btn-secondary" onclick="prevStep()">Previous</button>
+          <button id="submitBtn" type="button" onclick="submitForm()" disabled>Submit</button>
+        </div>
+      </form>
+      
+      <p id="output" style="display: none;"></p>
+      <p id="error" style="display: none;"></p>
+    </div>
+  </div>
+
+  <!-- PDF Download Modal -->
+  <div id="pdfModal" class="modal">
+    <div class="modal-content">
+      <h3>Notice</h3>
+      <div class="modal-body">
+        Please download the HR Policy PDF and read it properly before submitting.
+      </div>
+      <button onclick="closePdfModal()">OK</button>
+    </div>
+  </div>
+
+  <!-- Success Page -->
+  <div id="successPage">
+    <div class="success-content">
+      <div class="success-icon"></div>
+      <h2 class="success-title">Submitted Successfully!</h2>
+      <p class="success-message">
+        Thank you for submitting your details.<br>
+        We have received your form and will process it shortly.
+      </p>
+      <button onclick="resetForm()" style="margin-top: 20px;">Submit Another Form</button>
+    </div>
+  </div>
+  <script>
+    let currentStep = 1;
+    let policyDownloaded = false;
+
+    function showStep(step) {
+      // Hide all steps
+      document.querySelectorAll(".step").forEach((div) => {
+        div.classList.remove("active");
+      });
+      
+      // Show current step
+      document.getElementById('step' + step).classList.add("active");
+      
+      // Update progress indicators
+      document.querySelectorAll(".progress-step").forEach((indicator, index) => {
+        indicator.classList.remove("active", "completed");
+        if (index + 1 < step) {
+          indicator.classList.add("completed");
+        } else if (index + 1 === step) {
+          indicator.classList.add("active");
+        }
+      });
+    }
+
+    function validateStep(stepNum) {
+      const stepDiv = document.getElementById('step' + stepNum);
+      const requiredInputs = stepDiv.querySelectorAll('input[required], select[required]');
+      let allFilled = true;
+      
+      requiredInputs.forEach(input => {
+        if (
+          (input.type === "file" && !input.files.length) ||
+          (input.type !== "file" && !input.value.trim())
+        ) {
+          allFilled = false;
+          input.style.borderColor = "#ff1744";
+        } else {
+          input.style.borderColor = "";
+        }
+      });
+      
+      return allFilled;
+    }
+
+    function nextStep() {
+      if (!validateStep(currentStep)) {
+        showError("All required fields must be filled before proceeding to the next page.");
+        return;
+      }
+      
+      hideError();
+      currentStep++;
+      showStep(currentStep);
+    }
+
+    function prevStep() {
+      currentStep--;
+      showStep(currentStep);
+    }
+
+    function hideWelcome() {
+      const welcomeScreen = document.getElementById('welcomeScreen');
+      const formContainer = document.getElementById('formContainer');
+      
+      welcomeScreen.classList.add('fade-out');
+      setTimeout(() => {
+        welcomeScreen.style.display = 'none';
+        formContainer.classList.add('show');
+      }, 500);
+    }
+
+function openPDF() {
+  const pdfUrl = "https://drive.google.com/file/d/1VkqFA3mWhFOm3a9865b0HFMVP-Cdo3Qz/view?usp=sharing";
+  window.open(pdfUrl, '_blank');
+
+  policyDownloaded = true;
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('downloadPolicyBtn').innerText = "Downloaded ✓";
+  document.getElementById('downloadPolicyBtn').style.background = "#28a745";
+}
+
+    function showPdfModal() {
+      document.getElementById('pdfModal').style.display = 'block';
+    }
+
+    function closePdfModal() {
+      document.getElementById('pdfModal').style.display = 'none';
+    }
+
+    function showMessage(message) {
+      const output = document.getElementById("output");
+      output.innerText = message;
+      output.style.display = "block";
+      hideError();
+    }
+
+    function showError(message) {
+      const error = document.getElementById("error");
+      error.innerText = message;
+      error.style.display = "block";
+      document.getElementById("output").style.display = "none";
+    }
+
+    function hideError() {
+      document.getElementById("error").style.display = "none";
+    }
+
+    async function submitForm() {
+  if (!policyDownloaded) {
+    showPdfModal();
+    return;
+  }
+
+  if (!validateStep(currentStep)) {
+    showError("Please fill all required fields before submitting.");
+    return;
+  }
+
+  showMessage("Processing your submission...");
+
+  try {
+    const form = document.getElementById("dataForm");
+    const formData = new FormData(form);
+    const formObject = {};
+
+    // Convert form data including files to base64
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File && value.size > 0) {
+        const base64 = await fileToBase64(value);
+        formObject[key] = {
+          name: value.name,
+          type: value.type,
+          data: base64
+        };
+      } else {
+        formObject[key] = value;
+      }
+    }
+
+    // Add timestamp
+    formObject.submissionTime = new Date().toISOString();
+
+    // Call Google Apps Script function
+    google.script.run
+      .withSuccessHandler(() => {
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('successPage').style.display = 'flex';
+      })
+      .withFailureHandler((error) => {
+        showError("Submission failed: " + error.message);
+      })
+      .processFormSubmission(formObject);
+
+  } catch (error) {
+    showError("Submission failed: " + error.message);
+  }
+}
+
+    // Helper function to convert file to base64 (if needed)
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    }
+
+    function resetForm() {
+      // Reset form
+      document.getElementById("dataForm").reset();
+      currentStep = 1;
+      policyDownloaded = false;
+      
+      // Reset UI
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('downloadPolicyBtn').innerText = "Download HR Policy";
+      document.getElementById('downloadPolicyBtn').style.background = "";
+      
+      // Hide success page and show welcome screen
+      document.getElementById('successPage').style.display = 'none';
+      document.getElementById('formContainer').style.display = 'none';
+      document.getElementById('welcomeScreen').style.display = 'flex';
+      document.getElementById('welcomeScreen').classList.remove('fade-out');
+      
+      // Reset step display
+      showStep(1);
+      hideError();
+      document.getElementById("output").style.display = "none";
+    }
+
+    // File upload preview functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const fileInputs = document.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        input.addEventListener('change', function() {
+          if (this.files.length > 0) {
+            this.style.borderColor = "#28a745";
+          }
+        });
+      });
+    });
+    function showTerms() {
+            alert('Terms and Conditions would open here');
+        }
+
+        function showPrivacy() {
+            alert('Privacy Policy would open here');
+        }
+
+  </script>
+</body>
+</html>
